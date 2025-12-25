@@ -1,0 +1,28 @@
+{
+  "name": "AI 智能对话",
+  "version": "1.0.0",
+  "description": "基于大语言模型的智能对话助手，支持多轮对话、上下文记忆和流式输出",
+  "author": "DocuMind Team",
+  "category": "ai_agent",
+  "triggers": [
+    "chat",
+    "对话",
+    "问",
+    "回答",
+    "询问",
+    "tell me",
+    "解释",
+    "帮我"
+  ],
+  "requiredPermissions": [
+    "ai_access",
+    "read_document"
+  ],
+  "quotaCost": 1,
+  "config": {
+    "model": "gemini-2.0-flash-exp",
+    "maxTokens": 8192,
+    "temperature": 0.7,
+    "streamEnabled": true
+  }
+}

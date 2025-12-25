@@ -1,0 +1,33 @@
+{
+  "name": "AI 图片生成",
+  "version": "1.0.0",
+  "description": "基于文本描述生成高质量图片，支持多种风格和分辨率",
+  "author": "DocuMind Team",
+  "category": "image",
+  "triggers": [
+    "生成图片",
+    "画图",
+    "创建图像",
+    "generate image",
+    "draw",
+    "插图",
+    "配图"
+  ],
+  "requiredPermissions": [
+    "ai_access",
+    "image_generation"
+  ],
+  "quotaCost": 5,
+  "config": {
+    "model": "gemini-3-pro-image-preview",
+    "defaultSize": "1024x1024",
+    "defaultStyle": "realistic",
+    "supportedStyles": [
+      "realistic",
+      "artistic",
+      "anime",
+      "cartoon",
+      "sketch"
+    ]
+  }
+}

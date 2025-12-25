@@ -1,0 +1,33 @@
+{
+  "name": "文档智能分析",
+  "version": "1.0.0",
+  "description": "深度分析文档内容，提取关键信息、生成摘要、识别实体和关键词",
+  "author": "DocuMind Team",
+  "category": "document",
+  "triggers": [
+    "分析文档",
+    "总结",
+    "摘要",
+    "提取",
+    "summarize",
+    "analyze",
+    "关键词",
+    "实体识别"
+  ],
+  "requiredPermissions": [
+    "ai_access",
+    "read_document"
+  ],
+  "quotaCost": 2,
+  "config": {
+    "model": "gemini-2.0-flash-exp",
+    "maxTokens": 8192,
+    "analysisTypes": [
+      "summary",
+      "keywords",
+      "entities",
+      "sentiment",
+      "topics"
+    ]
+  }
+}
