@@ -7,18 +7,11 @@
  */
 
 import type { SkillDefinition, SkillManifest } from '@/types';
-import { execute } from './executor';
+import { execute, type ImageGenerationResult } from './executor';
 import manifestJson from './manifest.json';
 
-/**
- * 图片生成结果类型
- */
-export interface ImageGenerationResult {
-  imageUrl: string;
-  prompt: string;
-  size: string;
-  style: string;
-}
+// 导出结果类型
+export type { ImageGenerationResult };
 
 /**
  * 将 JSON manifest 转换为类型安全的 SkillManifest

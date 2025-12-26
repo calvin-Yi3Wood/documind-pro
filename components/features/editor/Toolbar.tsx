@@ -26,7 +26,40 @@ interface ToolbarProps {
   onInsertImage?: () => void;
   /** 插入表格回调 */
   onInsertTable?: () => void;
+  /** 格式刷是否激活 */
+  isFormatPainterActive?: boolean;
+  /** 格式刷捕获回调 */
+  onFormatPainterCapture?: () => void;
+  /** 格式刷取消回调 */
+  onFormatPainterCancel?: () => void;
+  /** AI 自动补全是否启用 */
+  isAutocompleteEnabled?: boolean;
+  /** AI 自动补全切换回调 */
+  onAutocompleteToggle?: () => void;
 }
+
+// 字体列表
+const FONT_FAMILIES = [
+  { label: '默认', value: '' },
+  { label: '宋体', value: 'SimSun, serif' },
+  { label: '黑体', value: 'SimHei, sans-serif' },
+  { label: '微软雅黑', value: 'Microsoft YaHei, sans-serif' },
+  { label: '楷体', value: 'KaiTi, serif' },
+  { label: 'Arial', value: 'Arial, sans-serif' },
+  { label: 'Times New Roman', value: 'Times New Roman, serif' },
+  { label: 'Courier New', value: 'Courier New, monospace' },
+];
+
+// 字号列表
+const FONT_SIZES = [
+  { label: '12px', value: '1' },
+  { label: '14px', value: '2' },
+  { label: '16px', value: '3' },
+  { label: '18px', value: '4' },
+  { label: '20px', value: '5' },
+  { label: '24px', value: '6' },
+  { label: '32px', value: '7' },
+];
 
 /**
  * 编辑器工具栏组件
@@ -40,8 +73,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   activeFormats = [],
   onInsertImage,
   onInsertTable,
+  isFormatPainterActive = false,
+  onFormatPainterCapture,
+  onFormatPainterCancel,
+  isAutocompleteEnabled = false,
+  onAutocompleteToggle,
 }) => {
   const [showHeadingMenu, setShowHeadingMenu] = useState(false);
+  const [showFontMenu, setShowFontMenu] = useState(false);
+  const [showFontSizeMenu, setShowFontSizeMenu] = useState(false);
 
   // 检查格式是否激活
   const isActive = useCallback((format: string) => {
@@ -83,6 +123,94 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       >
         <i className="fas fa-redo text-bronze-600" />
       </Button>
+
+      <Divider />
+
+      {/* 格式刷 */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          if (isFormatPainterActive) {
+            onFormatPainterCancel?.();
+          } else {
+            onFormatPainterCapture?.();
+          }
+        }}
+        title={isFormatPainterActive ? '取消格式刷 (Esc)' : '格式刷 (选中文字后点击)'}
+        className={`p-2 ${
+          isFormatPainterActive
+            ? 'bg-orange-100 text-orange-600 ring-2 ring-orange-300'
+            : 'text-bronze-600 hover:bg-bronze-50'
+        }`}
+      >
+        <i className="fas fa-paint-roller" />
+      </Button>
+
+      <Divider />
+
+      {/* 字体选择器 */}
+      <div className="relative">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowFontMenu(!showFontMenu)}
+          title="字体"
+          className="p-2 text-bronze-600 hover:bg-bronze-50 flex items-center gap-1 min-w-[80px]"
+        >
+          <i className="fas fa-font" />
+          <i className="fas fa-chevron-down text-xs" />
+        </Button>
+
+        {showFontMenu && (
+          <div className="absolute top-full left-0 mt-1 bg-white border border-bronze-200 rounded-lg shadow-lg z-50 py-1 min-w-[160px]">
+            {FONT_FAMILIES.map((font) => (
+              <button
+                key={font.value}
+                className="w-full px-3 py-1.5 text-left hover:bg-bronze-50 text-sm"
+                style={{ fontFamily: font.value || 'inherit' }}
+                onClick={() => {
+                  onCommand('fontName', font.value);
+                  setShowFontMenu(false);
+                }}
+              >
+                {font.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 字号选择器 */}
+      <div className="relative">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowFontSizeMenu(!showFontSizeMenu)}
+          title="字号"
+          className="p-2 text-bronze-600 hover:bg-bronze-50 flex items-center gap-1 min-w-[60px]"
+        >
+          <span className="text-xs">字号</span>
+          <i className="fas fa-chevron-down text-xs" />
+        </Button>
+
+        {showFontSizeMenu && (
+          <div className="absolute top-full left-0 mt-1 bg-white border border-bronze-200 rounded-lg shadow-lg z-50 py-1 min-w-[80px]">
+            {FONT_SIZES.map((size) => (
+              <button
+                key={size.value}
+                className="w-full px-3 py-1.5 text-left hover:bg-bronze-50 text-sm"
+                onClick={() => {
+                  onCommand('fontSize', size.value);
+                  setShowFontSizeMenu(false);
+                }}
+              >
+                {size.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <Divider />
 
@@ -289,11 +417,40 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <i className="fas fa-link" />
       </Button>
 
+      {onAutocompleteToggle && (
+        <>
+          <Divider />
+
+          {/* AI 自动补全开关 */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAutocompleteToggle}
+            title={isAutocompleteEnabled ? '关闭 AI 自动补全' : '开启 AI 自动补全 (输入时自动预测)'}
+            className={`p-2 flex items-center gap-1 ${
+              isAutocompleteEnabled
+                ? 'bg-orange-100 text-orange-600'
+                : 'text-bronze-600 hover:bg-bronze-50'
+            }`}
+          >
+            <i className="fas fa-wand-magic-sparkles" />
+            <span className="text-xs">AI补全</span>
+            {isAutocompleteEnabled && (
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            )}
+          </Button>
+        </>
+      )}
+
       {/* 点击其他地方关闭菜单 */}
-      {showHeadingMenu && (
+      {(showHeadingMenu || showFontMenu || showFontSizeMenu) && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setShowHeadingMenu(false)}
+          onClick={() => {
+            setShowHeadingMenu(false);
+            setShowFontMenu(false);
+            setShowFontSizeMenu(false);
+          }}
         />
       )}
     </div>

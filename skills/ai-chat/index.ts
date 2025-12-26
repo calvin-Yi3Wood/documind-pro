@@ -7,7 +7,7 @@
  */
 
 import type { SkillDefinition, SkillManifest } from '@/types';
-import { execute } from './executor';
+import { execute, type AIChatResult } from './executor';
 import manifestJson from './manifest.json';
 
 /**
@@ -30,7 +30,7 @@ const manifest: SkillManifest = {
 /**
  * AI Chat Skill 定义
  */
-export const aiChatSkill: SkillDefinition<string> = {
+export const aiChatSkill: SkillDefinition<AIChatResult> = {
   manifest,
   execute,
   isAvailable: async (_context) => {

@@ -27,7 +27,8 @@ interface TestSuite {
   skipped: number;
 }
 
-const testResults: TestSuite[] = [];
+const _testResults: TestSuite[] = []; // 保留供未来测试套件聚合使用
+void _testResults;
 
 // 测试工具函数
 async function runTest(
@@ -38,14 +39,15 @@ async function runTest(
   const start = Date.now();
   try {
     const result = await testFn();
-    return {
+    const testResult: TestResult = {
       name,
       category,
       status: result.success ? 'PASS' : 'FAIL',
       duration: Date.now() - start,
-      message: result.message,
-      details: result.details,
     };
+    if (result.message) testResult.message = result.message;
+    if (result.details) testResult.details = result.details;
+    return testResult;
   } catch (error) {
     return {
       name,
@@ -206,4 +208,5 @@ export function generateReport(results: TestSuite[]): string {
   return report;
 }
 
-export { runTest, testAPI, TestResult, TestSuite };
+export { runTest, testAPI };
+export type { TestResult, TestSuite };

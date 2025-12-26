@@ -80,6 +80,14 @@ Edit: D:/项目库/嵩说AI文档智能体/components/Editor.tsx
 - [x] 5.4 其他可视化组件迁移
   - VisualPanel, ChartViewer, PPTViewer, DrawingCanvas
   - KnowledgeBase, ImageEditor, SelectionToolbar
+- [x] 5.5 Editor 高级功能迁移 ✅ (2025-12-26)
+  - 格式刷功能 (捕获/应用格式)
+  - AI 自动补全 (Ghost Text，Tab 接受)
+  - 段落拖拽排序 (Block Drag & Drop)
+  - 图片高级编辑 (删除/编辑/调整大小)
+  - 右键上下文菜单 (剪切/复制/粘贴/AI功能)
+  - 字体选择器 (字体/字号下拉菜单)
+  - AI 段落改写 ("T"按钮弹出菜单)
 
 ### Stage 6: 安全性增强 🔄 进行中
 - [ ] 6.1 认证系统 (NextAuth.js)
@@ -147,5 +155,5 @@ documind-pro/
 
 ---
 
-*最后更新: 2025-12-25*
+*最后更新: 2025-12-26*
 *当前阶段: Stage 6 - 安全性增强*

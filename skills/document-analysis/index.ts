@@ -7,20 +7,11 @@
  */
 
 import type { SkillDefinition, SkillManifest } from '@/types';
-import { execute } from './executor';
+import { execute, type DocumentAnalysisResult } from './executor';
 import manifestJson from './manifest.json';
 
-/**
- * 文档分析结果类型
- */
-export interface DocumentAnalysisResult {
-  summary: string;
-  keywords: string[];
-  entities: Array<{ type: string; value: string }>;
-  sentiment: 'positive' | 'neutral' | 'negative';
-  topics: string[];
-  wordCount: number;
-}
+// 导出结果类型
+export type { DocumentAnalysisResult };
 
 /**
  * 将 JSON manifest 转换为类型安全的 SkillManifest
