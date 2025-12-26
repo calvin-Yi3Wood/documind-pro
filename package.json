@@ -1,5 +1,5 @@
 {
-  "name": "documind-pro",
+  "name": "docufusion",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,6 +15,8 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "dompurify": "^3.3.1",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.5",
     "isomorphic-dompurify": "^2.34.0",
     "lucide-react": "^0.562.0",
     "nanoid": "^5.1.6",
@@ -23,6 +25,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hot-toast": "^2.6.0",
+    "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.2.1",
     "zustand": "^5.0.9"
@@ -40,13 +43,13 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "description": "DocuMind Pro - AI驱动的文档智能处理平台",
+  "description": "DocuFusion - AI驱动的文档智能处理平台",
   "keywords": [
     "nextjs",
     "ai",
     "document",
     "typescript"
   ],
-  "author": "DocuMind Team",
+  "author": "DocuFusion Team",
   "license": "Private"
 }

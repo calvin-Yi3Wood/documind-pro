@@ -2,7 +2,7 @@
   "name": "文档智能分析",
   "version": "1.0.0",
   "description": "深度分析文档内容，提取关键信息、生成摘要、识别实体和关键词",
-  "author": "DocuMind Team",
+  "author": "DocuFusion Team",
   "category": "document",
   "triggers": [
     "分析文档",

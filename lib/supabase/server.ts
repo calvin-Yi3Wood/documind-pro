@@ -2,6 +2,7 @@
  * Supabase 服务端客户端
  *
  * 用于 API Routes 和服务端组件
+ * 支持优雅降级：未配置 Supabase 时返回 mock 客户端
  */
 
 import { createServerClient } from '@supabase/ssr';
@@ -9,12 +10,88 @@ import { cookies } from 'next/headers';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 
+// ============================================
+// 🔧 开发模式配置检测
+// ============================================
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+const hasSupabaseConfig = !!(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+const hasServiceRoleKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+/**
+ * Mock Supabase 客户端 (用于开发模式或未配置 Supabase 时)
+ */
+function createMockClient() {
+  const mockResult = { data: null, error: null };
+  const mockQuery = {
+    select: () => mockQuery,
+    insert: () => mockQuery,
+    update: () => mockQuery,
+    delete: () => mockQuery,
+    eq: () => mockQuery,
+    neq: () => mockQuery,
+    gt: () => mockQuery,
+    gte: () => mockQuery,
+    lt: () => mockQuery,
+    lte: () => mockQuery,
+    like: () => mockQuery,
+    ilike: () => mockQuery,
+    is: () => mockQuery,
+    in: () => mockQuery,
+    order: () => mockQuery,
+    limit: () => mockQuery,
+    single: () => Promise.resolve(mockResult),
+    maybeSingle: () => Promise.resolve(mockResult),
+    then: (resolve: (value: typeof mockResult) => void) => Promise.resolve(mockResult).then(resolve),
+  };
+
+  return {
+    from: () => mockQuery,
+    rpc: () => Promise.resolve(mockResult),
+    auth: {
+      getUser: () => Promise.resolve({
+        data: {
+          user: isDevMode ? {
+            id: 'dev-user-001',
+            email: 'dev@documind.local',
+            app_metadata: {},
+            user_metadata: { name: '开发者' },
+            aud: 'authenticated',
+            created_at: new Date().toISOString(),
+          } : null,
+        },
+        error: null,
+      }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      signOut: () => Promise.resolve({ error: null }),
+    },
+    storage: {
+      from: () => ({
+        upload: () => Promise.resolve({ data: null, error: null }),
+        download: () => Promise.resolve({ data: null, error: null }),
+        remove: () => Promise.resolve({ data: null, error: null }),
+        list: () => Promise.resolve({ data: [], error: null }),
+        getPublicUrl: () => ({ data: { publicUrl: '' } }),
+      }),
+    },
+  } as unknown as ReturnType<typeof createServiceClient<Database>>;
+}
+
 /**
  * 创建服务端 Supabase 客户端（带用户上下文）
  *
  * 用于需要用户认证的操作
+ * 未配置 Supabase 时返回 mock 客户端
  */
 export async function createClient() {
+  // 未配置 Supabase 时返回 mock 客户端
+  if (!hasSupabaseConfig) {
+    console.log('ℹ️  Supabase not configured, using mock client');
+    return createMockClient();
+  }
+
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
@@ -45,8 +122,19 @@ export async function createClient() {
  *
  * ⚠️ 仅用于服务端，绕过 RLS
  * 用于：用户注册、配额管理、后台任务等
+ * 未配置 Supabase 时返回 mock 客户端
  */
 export function createAdminClient() {
+  // 未配置 Supabase 或 Service Role Key 时返回 mock 客户端
+  if (!hasSupabaseConfig || !hasServiceRoleKey) {
+    if (!hasSupabaseConfig) {
+      console.log('ℹ️  Supabase not configured, using mock admin client');
+    } else {
+      console.log('ℹ️  Service Role Key not configured, using mock admin client');
+    }
+    return createMockClient();
+  }
+
   return createServiceClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

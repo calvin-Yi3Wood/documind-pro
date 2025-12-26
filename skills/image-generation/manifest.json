@@ -2,7 +2,7 @@
   "name": "AI 图片生成",
   "version": "1.0.0",
   "description": "基于文本描述生成高质量图片，支持多种风格和分辨率",
-  "author": "DocuMind Team",
+  "author": "DocuFusion Team",
   "category": "image",
   "triggers": [
     "生成图片",

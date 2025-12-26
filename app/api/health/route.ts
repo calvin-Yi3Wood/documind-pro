@@ -8,6 +8,6 @@ export async function GET() {
   return NextResponse.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    service: "DocuMind Pro API",
+    service: "DocuFusion API",
   });
 }

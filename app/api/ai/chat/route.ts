@@ -7,6 +7,10 @@
  * - 检查使用配额
  * - 调用AI服务
  * - 返回流式响应
+ *
+ * 支持参数:
+ * - provider: 'gemini' | 'deepseek' (可选，默认自动选择)
+ * - model: 模型名称 (可选，如 'deepseek-reasoner')
  */
 
 import { NextRequest } from 'next/server';
@@ -14,8 +18,9 @@ import { success, streamResponse, aiServiceError } from '@/lib/api/response';
 import { validateBody, commonSchemas } from '@/lib/api/validation';
 import { withErrorHandler, withRateLimit, compose } from '@/lib/api/middleware';
 import { AIProviderManager } from '@/services/ai/provider';
+import type { AIProviderType } from '@/services/ai/provider';
 import { createGeminiProvider } from '@/services/ai/gemini';
-import { createDeepSeekProvider } from '@/services/ai/deepseek';
+import { createDeepSeekProvider, DeepSeekProvider, type DeepSeekModel } from '@/services/ai/deepseek';
 import { buildSystemMessage } from '@/config/prompts';
 import type { AIStreamChunk } from '@/services/ai/provider';
 
@@ -62,6 +67,15 @@ function getProviderManager(): AIProviderManager {
 
 /**
  * 处理聊天请求(POST)
+ *
+ * 请求体示例:
+ * {
+ *   "query": "你好",
+ *   "provider": "deepseek",        // 可选: gemini | deepseek
+ *   "model": "deepseek-reasoner",  // 可选: deepseek-chat | deepseek-reasoner
+ *   "history": [],
+ *   "stream": true
+ * }
  */
 async function handleChatRequest(request: NextRequest) {
   // 1. 验证请求体
@@ -73,13 +87,34 @@ async function handleChatRequest(request: NextRequest) {
 
   const { query, documentId, history, stream } = validation.data;
 
+  // 获取可选的 provider 和 model 参数
+  let requestData: { provider?: string; model?: string } = {};
+  try {
+    const clonedRequest = request.clone();
+    const body = await clonedRequest.json();
+    requestData = {
+      provider: body.provider,
+      model: body.model,
+    };
+  } catch {
+    // 忽略解析错误，使用默认值
+  }
+
+  const preferredProvider = requestData.provider as AIProviderType | undefined;
+  const preferredModel = requestData.model;
+
   try {
     // 2. 构建消息历史
+    // 根据提供商和模型选择提示词类型
+    let promptType: 'DEFAULT' | 'DEEPSEEK' | 'DEEPSEEK_REASONER' = 'DEFAULT';
+    if (preferredProvider === 'deepseek') {
+      promptType = preferredModel === 'deepseek-reasoner' ? 'DEEPSEEK_REASONER' : 'DEEPSEEK';
+    }
     const messages = [
-      // 系统提示词
+      // 系统提示词（根据提供商选择）
       {
         role: 'system' as const,
-        content: buildSystemMessage('DEFAULT'),
+        content: buildSystemMessage(promptType),
       },
       // 用户历史消息
       ...(history || []),
@@ -93,13 +128,25 @@ async function handleChatRequest(request: NextRequest) {
     // 3. 获取AI提供商
     const manager = getProviderManager();
 
+    // 如果指定了 DeepSeek 模型，设置模型
+    if (preferredProvider === 'deepseek' && preferredModel) {
+      const deepseekProvider = manager.getProviderByName('deepseek');
+      if (deepseekProvider && 'setModel' in deepseekProvider) {
+        (deepseekProvider as DeepSeekProvider).setModel(preferredModel as DeepSeekModel);
+      }
+    }
+
     // 4. 调用AI服务
-    const response = await manager.chat({
-      messages,
-      stream: stream ?? true,
-      temperature: 0.7,
-      maxTokens: 2048,
-    });
+    const response = await manager.chat(
+      {
+        messages,
+        stream: stream ?? true,
+        temperature: 0.7,
+        maxTokens: preferredModel === 'deepseek-reasoner' ? 8192 : 2048,
+        ...(preferredModel ? { model: preferredModel } : {}),
+      },
+      preferredProvider
+    );
 
     // 5. 返回响应
     if (Symbol.asyncIterator in response) {
@@ -111,13 +158,14 @@ async function handleChatRequest(request: NextRequest) {
         content: response.content,
         usage: response.usage,
         model: response.model,
+        provider: preferredProvider || manager.getCurrentProviderName() || 'unknown',
       });
     }
   } catch (err) {
     console.error('AI chat error:', err);
     return aiServiceError(
       err instanceof Error ? err.message : 'AI service failed',
-      { documentId }
+      { documentId, provider: preferredProvider, model: preferredModel }
     );
   }
 }

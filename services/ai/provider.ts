@@ -2,7 +2,13 @@
  * AI Provider Abstract Interface
  *
  * 定义统一的AI服务接口,支持多个AI提供商
+ * 支持运行时切换模型和服务商
  */
+
+/**
+ * AI 服务商类型
+ */
+export type AIProviderType = 'gemini' | 'deepseek';
 
 /**
  * AI 消息角色
@@ -95,32 +101,77 @@ export interface AIProvider {
 /**
  * AI 提供商管理器
  *
- * 管理多个AI提供商,支持自动降级
+ * 管理多个AI提供商,支持自动降级和运行时切换
  */
 export class AIProviderManager {
-  private providers: AIProvider[] = [];
-  private currentProviderIndex = 0;
+  private providers: Map<string, AIProvider> = new Map();
+  private currentProviderName: string | null = null;
+  private defaultProviderOrder: string[] = [];
 
   constructor(providers: AIProvider[]) {
-    this.providers = providers;
+    providers.forEach((p) => {
+      this.providers.set(p.name.toLowerCase(), p);
+      this.defaultProviderOrder.push(p.name.toLowerCase());
+    });
+    if (providers.length > 0 && providers[0]) {
+      this.currentProviderName = providers[0].name.toLowerCase();
+    }
+  }
+
+  /**
+   * 根据名称获取提供商
+   *
+   * @param name - 提供商名称 (gemini / deepseek)
+   * @returns AI提供商
+   */
+  getProviderByName(name: string): AIProvider | null {
+    return this.providers.get(name.toLowerCase()) || null;
+  }
+
+  /**
+   * 设置当前使用的提供商
+   *
+   * @param name - 提供商名称
+   */
+  setProvider(name: AIProviderType): void {
+    const provider = this.providers.get(name.toLowerCase());
+    if (provider) {
+      this.currentProviderName = name.toLowerCase();
+      console.log(`✅ Switched to provider: ${provider.name}`);
+    } else {
+      console.warn(`⚠️  Provider not found: ${name}`);
+    }
   }
 
   /**
    * 获取当前可用的提供商
    *
+   * @param preferredProvider - 优先使用的提供商名称
    * @returns AI提供商
    */
-  async getCurrentProvider(): Promise<AIProvider | null> {
-    for (let i = 0; i < this.providers.length; i++) {
-      const provider = this.providers[this.currentProviderIndex];
-      if (!provider) continue;
+  async getCurrentProvider(preferredProvider?: string): Promise<AIProvider | null> {
+    // 如果指定了优先提供商
+    if (preferredProvider) {
+      const preferred = this.providers.get(preferredProvider.toLowerCase());
+      if (preferred && await preferred.isAvailable()) {
+        return preferred;
+      }
+    }
 
-      if (await provider.isAvailable()) {
+    // 使用当前设定的提供商
+    if (this.currentProviderName) {
+      const current = this.providers.get(this.currentProviderName);
+      if (current && await current.isAvailable()) {
+        return current;
+      }
+    }
+
+    // 按默认顺序查找可用的提供商
+    for (const name of this.defaultProviderOrder) {
+      const provider = this.providers.get(name);
+      if (provider && await provider.isAvailable()) {
         return provider;
       }
-
-      // 切换到下一个提供商
-      this.currentProviderIndex = (this.currentProviderIndex + 1) % this.providers.length;
     }
 
     return null;
@@ -130,27 +181,42 @@ export class AIProviderManager {
    * 发送聊天请求(自动降级)
    *
    * @param config - 请求配置
+   * @param preferredProvider - 优先使用的提供商
    * @returns 流式响应或完整响应
    * @throws 如果所有提供商都不可用
    */
-  async chat(config: AIRequestConfig): Promise<AsyncIterable<AIStreamChunk> | AIResponse> {
+  async chat(
+    config: AIRequestConfig,
+    preferredProvider?: string
+  ): Promise<AsyncIterable<AIStreamChunk> | AIResponse> {
     let lastError: Error | null = null;
 
-    for (let i = 0; i < this.providers.length; i++) {
-      const provider = await this.getCurrentProvider();
-
-      if (!provider) {
-        throw new Error('No AI provider available');
+    // 首先尝试优先/当前提供商
+    const primary = await this.getCurrentProvider(preferredProvider);
+    if (primary) {
+      try {
+        return await primary.chat(config);
+      } catch (error) {
+        console.error(`Provider ${primary.name} failed:`, error);
+        lastError = error instanceof Error ? error : new Error('Unknown error');
       }
+    }
+
+    // 降级到其他提供商
+    for (const name of this.defaultProviderOrder) {
+      if (primary && name === primary.name.toLowerCase()) continue;
+
+      const provider = this.providers.get(name);
+      if (!provider) continue;
 
       try {
-        return await provider.chat(config);
+        if (await provider.isAvailable()) {
+          console.log(`⚠️  Falling back to provider: ${provider.name}`);
+          return await provider.chat(config);
+        }
       } catch (error) {
         console.error(`Provider ${provider.name} failed:`, error);
         lastError = error instanceof Error ? error : new Error('Unknown error');
-
-        // 切换到下一个提供商
-        this.currentProviderIndex = (this.currentProviderIndex + 1) % this.providers.length;
       }
     }
 
@@ -163,7 +229,11 @@ export class AIProviderManager {
    * @param provider - AI提供商
    */
   addProvider(provider: AIProvider): void {
-    this.providers.push(provider);
+    const name = provider.name.toLowerCase();
+    this.providers.set(name, provider);
+    if (!this.defaultProviderOrder.includes(name)) {
+      this.defaultProviderOrder.push(name);
+    }
   }
 
   /**
@@ -172,7 +242,12 @@ export class AIProviderManager {
    * @param name - 提供商名称
    */
   removeProvider(name: string): void {
-    this.providers = this.providers.filter((p) => p.name !== name);
+    const lowerName = name.toLowerCase();
+    this.providers.delete(lowerName);
+    this.defaultProviderOrder = this.defaultProviderOrder.filter((n) => n !== lowerName);
+    if (this.currentProviderName === lowerName) {
+      this.currentProviderName = this.defaultProviderOrder[0] || null;
+    }
   }
 
   /**
@@ -181,6 +256,26 @@ export class AIProviderManager {
    * @returns 提供商数组
    */
   getProviders(): AIProvider[] {
-    return [...this.providers];
+    return Array.from(this.providers.values());
+  }
+
+  /**
+   * 获取当前提供商名称
+   */
+  getCurrentProviderName(): string | null {
+    return this.currentProviderName;
+  }
+
+  /**
+   * 获取可用的提供商列表
+   */
+  async getAvailableProviders(): Promise<string[]> {
+    const available: string[] = [];
+    for (const [name, provider] of this.providers) {
+      if (await provider.isAvailable()) {
+        available.push(name);
+      }
+    }
+    return available;
   }
 }

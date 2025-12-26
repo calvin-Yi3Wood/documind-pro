@@ -3,7 +3,7 @@ export default function HomePage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="text-center">
         <h1 className="text-4xl font-bold text-bronze-800 mb-4">
-          DocuMind Pro
+          DocuFusion
         </h1>
         <p className="text-lg text-bronze-600 mb-8">
           AI驱动的文档智能处理平台

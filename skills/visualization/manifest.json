@@ -2,7 +2,7 @@
   "name": "数据可视化",
   "version": "1.0.0",
   "description": "将数据转换为图表、思维导图等可视化形式，支持多种图表类型和自定义样式",
-  "author": "DocuMind Team",
+  "author": "DocuFusion Team",
   "category": "visualization",
   "triggers": [
     "图表",

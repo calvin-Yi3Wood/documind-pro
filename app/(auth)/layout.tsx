@@ -19,7 +19,7 @@ export default function AuthLayout({
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
             <i className="fas fa-file-alt text-white text-lg" aria-hidden="true"></i>
           </div>
-          <span className="text-xl font-bold text-bronze-800">DocuMind Pro</span>
+          <span className="text-xl font-bold text-bronze-800">DocuFusion</span>
         </a>
       </header>
 
@@ -30,7 +30,7 @@ export default function AuthLayout({
 
       {/* 底部 */}
       <footer className="p-6 text-center text-sm text-bronze-500">
-        <p>© 2025 DocuMind Pro. All rights reserved.</p>
+        <p>© 2025 DocuFusion. All rights reserved.</p>
       </footer>
     </div>
   );

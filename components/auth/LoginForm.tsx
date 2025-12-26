@@ -63,7 +63,7 @@ export function LoginForm() {
     <div className="w-full max-w-md mx-auto">
       <div className="bg-cream-50 rounded-card shadow-card border border-beige-200 p-8">
         <h1 className="text-2xl font-bold text-bronze-800 text-center mb-6">
-          登录 DocuMind Pro
+          登录 DocuFusion
         </h1>
 
         {/* 错误提示 */}

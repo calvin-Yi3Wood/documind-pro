@@ -2,6 +2,7 @@
  * 配额服务
  *
  * 管理用户的 AI 调用配额和使用量
+ * 开发模式下返回无限配额
  */
 
 import { createAdminClient } from '@/lib/supabase/server';
@@ -11,6 +12,33 @@ import {
   getRemainingQuota,
   getQuotaUsagePercent,
 } from '@/types/subscription';
+
+// ============================================
+// 🔧 开发模式配置
+// ============================================
+const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
+/**
+ * 开发模式的无限配额状态
+ */
+const DEV_MODE_QUOTA: QuotaStatus = {
+  tier: 'pro' as SubscriptionTier,
+  aiQuota: {
+    total: 999999,
+    used: 0,
+    remaining: 999999,
+    usagePercent: 0,
+    resetAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 天后
+  },
+  storageQuota: {
+    totalMB: 999999,
+    usedMB: 0,
+    remainingMB: 999999,
+    usagePercent: 0,
+  },
+  isExceeded: false,
+  canUseAI: true,
+};
 
 // 配额状态
 export interface QuotaStatus {
@@ -52,8 +80,15 @@ export interface UsageStats {
 
 /**
  * 获取用户配额状态
+ * 开发模式下返回无限配额
  */
 export async function getQuotaStatus(userId: string): Promise<QuotaStatus | null> {
+  // 开发模式：返回无限配额
+  if (isDevMode) {
+    console.log('ℹ️  Dev mode: returning unlimited quota');
+    return DEV_MODE_QUOTA;
+  }
+
   const admin = createAdminClient();
 
   const { data, error } = await admin
@@ -134,19 +169,30 @@ export async function getQuotaStatus(userId: string): Promise<QuotaStatus | null
 
 /**
  * 检查用户是否可以使用 AI
+ * 开发模式下始终返回 true
  */
 export async function canUseAI(userId: string): Promise<boolean> {
+  // 开发模式：始终允许
+  if (isDevMode) {
+    return true;
+  }
   const status = await getQuotaStatus(userId);
   return status?.canUseAI ?? false;
 }
 
 /**
  * 消耗 AI 配额
+ * 开发模式下跳过配额消耗
  */
 export async function consumeAIQuota(
   userId: string,
   units: number = 1
 ): Promise<{ success: boolean; remaining: number }> {
+  // 开发模式：跳过配额消耗
+  if (isDevMode) {
+    return { success: true, remaining: 999999 };
+  }
+
   const admin = createAdminClient();
 
   // 先检查配额

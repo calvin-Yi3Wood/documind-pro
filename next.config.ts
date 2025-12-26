@@ -65,7 +65,7 @@ const nextConfig: NextConfig = {
 
   /* 环境变量 */
   env: {
-    NEXT_PUBLIC_APP_NAME: "DocuMind Pro",
+    NEXT_PUBLIC_APP_NAME: "DocuFusion",
   },
 
   /* 安全头配置 */

@@ -46,7 +46,7 @@ export async function execute(context: SkillContext): Promise<SkillResult<string
  * 构建系统提示词
  */
 function buildSystemPrompt(document?: SkillContext['document']): string {
-  let prompt = '你是 DocuMind Pro 的智能助手，擅长文档处理、数据分析和知识问答。';
+  let prompt = '你是 DocuFusion 的智能助手，擅长文档处理、数据分析和知识问答。';
 
   if (document) {
     prompt += `\n\n当前文档信息：\n`;

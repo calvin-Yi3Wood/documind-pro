@@ -1,14 +1,14 @@
 /**
- * DocuMind Pro - 全局常量配置
+ * DocuFusion - 全局常量配置
  */
 
 /**
  * 应用配置
  */
 export const APP_CONFIG = {
-  name: "DocuMind Pro",
+  name: "DocuFusion",
   description: "AI驱动的文档智能处理平台",
-  version: "0.1.0",
+  version: "1.0.0",
 } as const;
 
 /**
