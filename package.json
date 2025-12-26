@@ -9,9 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "dompurify": "^3.3.1",
+    "isomorphic-dompurify": "^2.34.0",
     "lucide-react": "^0.562.0",
     "nanoid": "^5.1.6",
     "next": "16.1.1",
@@ -37,7 +41,12 @@
     "typescript": "^5"
   },
   "description": "DocuMind Pro - AI驱动的文档智能处理平台",
-  "keywords": ["nextjs", "ai", "document", "typescript"],
+  "keywords": [
+    "nextjs",
+    "ai",
+    "document",
+    "typescript"
+  ],
   "author": "DocuMind Team",
   "license": "Private"
 }

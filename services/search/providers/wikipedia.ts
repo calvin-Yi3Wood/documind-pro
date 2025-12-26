@@ -121,13 +121,14 @@ export class WikipediaSearchProvider implements SearchProvider {
     // 合并搜索结果和页面详情
     return searchData.query.search.map((searchItem) => {
       const pageInfo = pageData.query?.pages?.[searchItem.pageid];
+      const thumbnail = pageInfo?.thumbnail?.source;
 
       return {
         title: searchItem.title,
         url: `https://en.wikipedia.org/wiki/${encodeURIComponent(searchItem.title.replace(/ /g, '_'))}`,
         snippet: pageInfo?.extract?.substring(0, 200) || this.stripHtml(searchItem.snippet),
         source: 'Wikipedia',
-        thumbnail: pageInfo?.thumbnail?.source,
+        ...(thumbnail ? { thumbnail } : {}),
       };
     });
   }

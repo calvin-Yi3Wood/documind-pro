@@ -99,13 +99,16 @@ export class GoogleSearchProvider implements SearchProvider {
       return [];
     }
 
-    return data.items.map((item) => ({
-      title: item.title,
-      url: item.link,
-      snippet: item.snippet,
-      source: 'Google',
-      thumbnail: item.pagemap?.cse_thumbnail?.[0]?.src,
-    }));
+    return data.items.map((item) => {
+      const thumbnail = item.pagemap?.cse_thumbnail?.[0]?.src;
+      return {
+        title: item.title,
+        url: item.link,
+        snippet: item.snippet,
+        source: 'Google',
+        ...(thumbnail ? { thumbnail } : {}),
+      };
+    });
   }
 }
 

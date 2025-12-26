@@ -78,6 +78,45 @@ export type {
 
 export { ApiErrorCode, ApiStatusCode } from './api';
 
+// ==================== 协同编辑类型 ====================
+export type {
+  // 连接状态
+  ConnectionStatus,
+  CollaborationSyncStatus,
+  // 用户感知
+  UserActivityStatus,
+  CursorPosition,
+  SelectionRange,
+  UserAwareness,
+  CollaborationParticipant,
+  // 版本控制
+  CollaborationSnapshot,
+  VersionHistoryItem,
+  // 操作记录
+  CollaborationOperationType,
+  CollaborationOperation,
+  // 会话管理
+  CollaborationSessionStatus,
+  CollaborationSession,
+  // Provider
+  CollaborationProviderConfig,
+  CollaborationProviderState,
+  CollaborationEventType,
+  CollaborationEventCallback,
+  ICollaborationProvider,
+  // 数据库类型
+  DBCollaborationSession,
+  DBDocumentVersion,
+  // 工具类型
+  GenerateUserColor,
+  CollaborationColor,
+  // 错误处理
+  CollaborationErrorType,
+  CollaborationError,
+} from './collaboration';
+
+export { COLLABORATION_COLORS } from './collaboration';
+
 // ==================== 通用类型工具 ====================
 
 /**

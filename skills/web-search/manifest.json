@@ -1,0 +1,33 @@
+{
+  "name": "网络搜索",
+  "version": "1.0.0",
+  "description": "搜索互联网获取最新信息，支持多种搜索引擎和智能结果整合",
+  "author": "DocuMind Team",
+  "category": "search",
+  "triggers": [
+    "搜索",
+    "search",
+    "查询",
+    "查找",
+    "找一下",
+    "联网",
+    "网上",
+    "最新",
+    "新闻"
+  ],
+  "requiredPermissions": [
+    "network:access"
+  ],
+  "quotaCost": 1,
+  "config": {
+    "defaultEngine": "google",
+    "supportedEngines": [
+      "google",
+      "bing",
+      "duckduckgo"
+    ],
+    "maxResults": 10,
+    "safeSearch": true,
+    "timeout": 10000
+  }
+}

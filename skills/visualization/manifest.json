@@ -1,0 +1,42 @@
+{
+  "name": "数据可视化",
+  "version": "1.0.0",
+  "description": "将数据转换为图表、思维导图等可视化形式，支持多种图表类型和自定义样式",
+  "author": "DocuMind Team",
+  "category": "visualization",
+  "triggers": [
+    "图表",
+    "可视化",
+    "chart",
+    "graph",
+    "思维导图",
+    "mindmap",
+    "流程图",
+    "饼图",
+    "柱状图",
+    "折线图"
+  ],
+  "requiredPermissions": [
+    "ai_access",
+    "read_document"
+  ],
+  "quotaCost": 2,
+  "config": {
+    "model": "gemini-2.0-flash-exp",
+    "supportedChartTypes": [
+      "bar",
+      "line",
+      "pie",
+      "scatter",
+      "radar",
+      "heatmap"
+    ],
+    "supportedDiagramTypes": [
+      "mindmap",
+      "flowchart",
+      "timeline",
+      "org-chart"
+    ],
+    "defaultLibrary": "echarts"
+  }
+}

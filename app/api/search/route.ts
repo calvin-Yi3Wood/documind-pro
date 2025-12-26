@@ -42,8 +42,8 @@ async function handleSearchRequest(request: NextRequest) {
     // 执行搜索
     const result = await searchService.search(query, {
       limit,
-      language,
-      region,
+      ...(language !== undefined ? { language } : {}),
+      ...(region !== undefined ? { region } : {}),
     });
 
     return success(result);

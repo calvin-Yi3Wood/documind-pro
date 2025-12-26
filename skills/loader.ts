@@ -155,13 +155,12 @@ class SkillLoaderManager {
     failed: number;
     skills: Skill[];
   }> {
-    // 在实际应用中，这里应该扫描 skills 目录获取所有可用的 Skills
-    // 目前暂时硬编码几个示例 Skills
+    // 所有可用的内置 Skills
     const availableSkillIds = [
       'ai-chat',
       'image-generation',
       'document-analysis',
-      'data-visualization',
+      'visualization',
       'web-search',
     ];
 

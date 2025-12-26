@@ -75,7 +75,7 @@ export class DuckDuckGoSearchProvider implements SearchProvider {
         url: data.AbstractURL,
         snippet: data.AbstractText,
         source: data.AbstractSource || 'DuckDuckGo',
-        thumbnail: data.Image,
+        ...(data.Image ? { thumbnail: data.Image } : {}),
       });
     }
 
@@ -90,7 +90,7 @@ export class DuckDuckGoSearchProvider implements SearchProvider {
             url: topic.FirstURL,
             snippet: topic.Text,
             source: 'DuckDuckGo',
-            thumbnail: topic.Icon?.URL,
+            ...(topic.Icon?.URL ? { thumbnail: topic.Icon.URL } : {}),
           });
         }
       }

@@ -174,3 +174,13 @@ export function streamResponse(stream: ReadableStream): NextResponse {
     },
   });
 }
+
+/**
+ * 创建 API 响应（success 的别名）
+ */
+export const createApiResponse = success;
+
+/**
+ * 创建错误响应（error 的别名）
+ */
+export const createErrorResponse = error;

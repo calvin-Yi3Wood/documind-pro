@@ -5,18 +5,9 @@
  */
 
 import type { SearchProvider, SearchResponse, SearchOptions, SearchResult } from './types';
-import {
-  GoogleSearchProvider,
-  createGoogleSearchProvider,
-} from './providers/google';
-import {
-  DuckDuckGoSearchProvider,
-  createDuckDuckGoSearchProvider,
-} from './providers/duckduckgo';
-import {
-  WikipediaSearchProvider,
-  createWikipediaSearchProvider,
-} from './providers/wikipedia';
+import { createGoogleSearchProvider } from './providers/google';
+import { createDuckDuckGoSearchProvider } from './providers/duckduckgo';
+import { createWikipediaSearchProvider } from './providers/wikipedia';
 
 /**
  * 缓存项
