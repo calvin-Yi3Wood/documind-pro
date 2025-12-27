@@ -170,3 +170,31 @@ export interface StreamChunk {
     quotaUsed?: number;
   };
 }
+
+/**
+ * AI 上下文项目来源
+ */
+export type AIContextSource = 'selection' | 'file' | 'manual' | 'document';
+
+/**
+ * AI 上下文项目
+ *
+ * 用户可以将选中的文本、文件内容等添加到上下文中
+ * AI 会基于这些上下文给出更精准的回答
+ */
+export interface AIContextItem {
+  /** 唯一标识 */
+  id: string;
+  /** 上下文文本内容 */
+  text: string;
+  /** 添加时间 */
+  addedAt: Date;
+  /** 是否已被 AI 使用 */
+  used: boolean;
+  /** 来源类型 */
+  source: AIContextSource;
+  /** 来源标签（如文件名、文档标题等） */
+  sourceLabel?: string;
+  /** 关联的文档 ID */
+  documentId?: string;
+}
